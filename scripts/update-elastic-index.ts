@@ -5,7 +5,7 @@
 import fetch from 'node-fetch'
 import YAML from 'yamljs'
 
-const baseUrl = process.env.ELASTIC_LOGS
+const baseUrl = process.env.ELASTIC_URL
 
 async function putJson(url: string, body: unknown): Promise<string> {
   const response = await fetch(baseUrl + url, {

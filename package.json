@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "update": "ts-node -T scripts/update-elastic-index",
+    "stack": "ts-node -T scripts/stack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/atombrenner/aws-logstreams-to-elastic#readme",
   "dependencies": {
+    "@atombrenner/cfn-stack": "^2.0.0",
     "esbuild": "^0.14.18",
     "jest": "^27.4.7",
     "node-fetch": "^2.6.7",
