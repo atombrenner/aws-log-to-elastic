@@ -1,0 +1,29 @@
+# Definition of a log index in Elasticsearch
+---
+index_patterns: 'logs-*'
+settings:
+  index:
+    number_of_shards: 1
+    number_of_replicas: 0
+    lifecycle.name: logs
+  analysis:
+    analyzer:
+      pattern_lowercase:
+        tokenizer: 'pattern'
+        filter: ['lowercase']
+    normalizer:
+      lowercase:
+        type: 'custom'
+        filter: ['lowercase']
+mappings:
+  properties:
+    msg: { type: 'text' }
+    hash: { type: 'keyword' }
+    app: { type: 'keyword', normalizer: 'lowercase' }
+    env: { type: 'keyword', normalizer: 'lowercase' }
+    level: { type: 'keyword', normalizer: 'lowercase' }
+    reqid: { type: 'keyword', normalizer: 'lowercase' }
+    id: { type: 'keyword' }
+    duration: { type: 'long' }
+    memory: { type: 'long' }
+    memorySize: { type: 'long' }
