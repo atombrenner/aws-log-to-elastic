@@ -4,9 +4,11 @@
   "description": "Send CloudWatch Log Streams to Elastic",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
+    "test:index": "ts-node -T scripts/test-index",
+    "test:lambda": "ts-node -T scripts/test-lambda",
     "update": "ts-node -T scripts/update-elastic-index",
-    "stack": "ts-node -T scripts/stack",
-    "test": "jest"
+    "stack": "ts-node -T scripts/stack"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,7 @@
   },
   "devDependencies": {
     "@atombrenner/cfn-stack": "^2.0.0",
-    "@tsconfig/node16": "^1.0.2",
+    "@tsconfig/node14": "^1.0.1",
     "@types/aws-lambda": "^8.10.92",
     "@types/jest": "^27.4.0",
     "@types/node-fetch": "^2.5.12",

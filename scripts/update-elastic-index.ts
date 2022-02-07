@@ -7,7 +7,7 @@ import YAML from 'yamljs'
 
 const baseUrl = process.env.ELASTIC_URL
 
-async function putJson(url: string, body: unknown): Promise<string> {
+async function putJson(url: string, body: unknown): Promise<unknown> {
   const response = await fetch(baseUrl + url, {
     method: 'PUT',
     headers: {
@@ -21,18 +21,18 @@ async function putJson(url: string, body: unknown): Promise<string> {
     throw Error(`HTTP ${response.status} ${response.statusText}: ${errorText}`)
   }
 
-  return response.json()
+  return await response.json()
 }
 
 async function updateTemplate() {
   const body = YAML.load('index-template.yml')
-  const result = await putJson('/_template/logs', body)
+  const result = await putJson('/_template/daily-logs', body)
   console.log(result)
 }
 
 async function updatePolicy() {
   const body = YAML.load('index-policy.yml')
-  const result = await putJson('/_ilm/policy/logs', body)
+  const result = await putJson('/_ilm/policy/daily-logs', body)
   console.log(result)
 }
 

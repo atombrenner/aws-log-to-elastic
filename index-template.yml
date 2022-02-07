@@ -1,11 +1,11 @@
 # Definition of a log index in Elasticsearch
 ---
-index_patterns: 'logs-*'
+index_patterns: 'daily-logs-*'
 settings:
   index:
     number_of_shards: 1
     number_of_replicas: 0
-    lifecycle.name: logs
+    lifecycle.name: daily-logs
   analysis:
     analyzer:
       pattern_lowercase:
