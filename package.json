@@ -35,6 +35,8 @@
   },
   "devDependencies": {
     "@atombrenner/cfn-stack": "^2.0.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.49.0",
+    "@aws-sdk/client-sts": "^3.49.0",
     "@tsconfig/node14": "^1.0.1",
     "@types/aws-lambda": "^8.10.92",
     "@types/jest": "^27.4.0",
