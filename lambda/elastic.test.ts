@@ -1,12 +1,35 @@
 import { toBulk } from './elastic'
 
 describe('toBulk', () => {
-  test('bulk message should have a hash', () => {
-    const body = toBulk([])
+  test('bulk data should end with a newline', () => {
+    const body = toBulk([
+      {
+        '@timestamp': '2000-01-31T12:00:00.000Z',
+        app: 'app',
+        env: 'env',
+        level: 'level',
+        msg: 'msg',
+      },
+    ])
 
-    // const parsed: any = parseLambdaMessage(
-    //   '2019-03-01T10:10:07.227Z	75f445ce-bf71-4bdf-9826-0e3817425752	some message'
-    // )
-    // expect(parsed.hash).toHaveLength(16)
+    expect(body).toMatch(/\n$/)
+  })
+
+  test('bulk message should have a hash', () => {
+    const body = toBulk([
+      {
+        '@timestamp': '2000-01-31T12:00:00.000Z',
+        app: 'app',
+        env: 'env',
+        level: 'level',
+        msg: 'msg',
+      },
+    ])
+
+    expect(body).toMatch(/\n$/)
+    const lines = body.split('\n')
+    const lastDoc = JSON.parse(lines[lines.length - 2])
+    expect(lastDoc).toHaveProperty('hash')
+    expect(lastDoc.hash).toHaveLength(16)
   })
 })
