@@ -1,4 +1,5 @@
-import { parseLambdaMessage, parseAppMessage } from './parse'
+import { CloudWatchLogsDecodedData } from 'aws-lambda'
+import { parseLambdaMessage, parseAppMessage, toDocs } from './parse'
 
 describe('parseLambdaMessage', () => {
   test('parsing a REPORT message should extract msg, duration, memory and requestid', () => {
@@ -131,10 +132,9 @@ describe('parseAppMessage', () => {
     expect(log.msg).toEqual('unstructured text')
   })
 
-  test('should lift up pino err property', () => {
-    const pinoMessage = JSON.stringify({
+  test('should lift up err property', () => {
+    const message = JSON.stringify({
       level: 'error',
-      time: 1644256980636,
       err: {
         type: 'Error',
         message: 'error message',
@@ -143,10 +143,60 @@ describe('parseAppMessage', () => {
       msg: 'message',
     })
 
-    const log = parseAppMessage(pinoMessage)
+    const log = parseAppMessage(message)
 
     expect(log.level).toEqual('error')
     expect(log.msg).toEqual('message - error message')
     expect(log.stack).toEqual('Error: error message\n    at handler (/app/bla.js:42:21)')
+  })
+})
+
+describe('toDoc', () => {
+  it('should use ingest time for @timestamp if structured data has no time field', () => {
+    const data = {
+      logGroup: 'my-app-dev',
+      logStream: 'instance/application.log',
+      logEvents: [
+        {
+          timestamp: 1234567890123,
+          message: `{"level":"info","msg":"some info message"}`,
+        },
+      ],
+    } as CloudWatchLogsDecodedData
+
+    const docs = toDocs(data)
+    expect(docs).toEqual([
+      {
+        '@timestamp': '2009-02-13T23:31:30.123Z',
+        app: 'my-app',
+        env: 'dev',
+        level: 'info',
+        msg: 'some info message',
+      },
+    ])
+  })
+
+  it('should use time field for @timestamp', () => {
+    const data = {
+      logGroup: 'my-app-dev',
+      logStream: 'instance/application.log',
+      logEvents: [
+        {
+          timestamp: 1234567890123,
+          message: `{"level":"info","time":1234567890000,"msg":"some info message"}`,
+        },
+      ],
+    } as CloudWatchLogsDecodedData
+
+    const docs = toDocs(data)
+    expect(docs).toEqual([
+      {
+        '@timestamp': '2009-02-13T23:31:30.000Z',
+        app: 'my-app',
+        env: 'dev',
+        level: 'info',
+        msg: 'some info message',
+      },
+    ])
   })
 })

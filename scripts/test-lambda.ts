@@ -1,15 +1,51 @@
+import { CloudWatchLogsEvent, CloudWatchLogsDecodedData } from 'aws-lambda'
+import { gzipSync } from 'zlib'
 import { handler } from '../lambda/index'
 
-async function main() {
-  // TODO: build artificial event with current date
+export function encode(event: CloudWatchLogsDecodedData): CloudWatchLogsEvent {
+  const data = gzipSync(Buffer.from(JSON.stringify(event))).toString('base64')
+  return { awslogs: { data } }
+}
 
+async function main() {
+  const timestamp = Date.now()
   const event = {
-    awslogs: {
-      data: 'H4sIAAAAAAAAA7WUUW/aMBDHv0qUp1YCEjtxSCJNE9pYn9ZJwNtSVSY5wCWxM9uBoarffZfQUVSmirEVCcn5393Pd2f7Ht0KjOFLmO1qcFP382g2uv86nk5HN2O356qtBI0yoUHIomGc+ISiXKrljVZNjZZq1+d13S9gs9enVgOv0CD6fhEuWBEwykIyZ4s499CzFDm3QskB+mKEaeYm16JupS+itKCNm353xxvQO7sScunedVgUpG1Nj64okB5EUUSpH0Qxoz6uWcyGhFJGUUzCMCYhYcGQhoSQaBglLMGlT7rkrcCSLa8wexKFNEl8f0hIQHq/W4H4x8wtYQNl5qaZK+RCZW4v6yKz11GZW5ll54dpLqFwtsKunFpIjHlyn3r/lnDwHgmvlLGd43a7HXCrqrkGiQc9KKALq7lddXbPqAq89vPjvOQfaGetwK5U0dlvxrO99I4dCC/pwJZr+eaRQaX0Dg1sGMYBjcKjIrjTRuPVc57h/6MKdkkVoLXSb5WBDqhijMXX24WMDyGH5FG1uK/zQsMk8vWLe+oc2TPp4I9bZ8VlUYJ2rtpX6w0k/LSeAY0PEy/EEgzKwsNbMXgwaRimJLh+if02f4DcDtBjAkaVmwNGqgLuK1U0JQI6ZCHMgYv+/caK0rRM7FpK2BG01irHmmYiX5uRLCbQ7oFjwzhXLTYVEqeH5KX37OhZbtb3PxpowKRJlB6zuNnJ3LnFBG4xdNptP9CNHNXirExbob9ft7kGJEmTE/xzFxbyLOScGzhChnGUBsMTZjtBd59WkK9nuoGzwDio7Z5JiJ8G9IQ52TvAT8hx8ZdMynz8n9HaS5rAkjilp419Bd/f1AngUeM1vmCbwGcp9a/xnR+Nge45OKo7Q+ePg+3u6Rd1SiSTPgcAAA==',
-    },
+    messageType: 'DATA_MESSAGE',
+    owner: '123456789012',
+    logGroup: 'my-app-dev',
+    logStream: 'i-0d4f5d352541b5f8c/application.log',
+    subscriptionFilters: ['Everything'],
+    logEvents: [
+      {
+        id: '36662203685206665857122522209448141537241116769592410112',
+        timestamp,
+        message: `{"level":"info","msg":"some info message"}`,
+      },
+      {
+        id: '36662203685206665857122522209448141537241116769592410113',
+        timestamp,
+        message: `{"level":"info","time":${
+          timestamp + 1
+        },"host":"www.atombrenner.de","path":"/some/path?bla=2","method":"GET","msg":"GET /some/path?bla=2"}`,
+      },
+      {
+        id: '36662203685206665857122522209448141537241116769592410114',
+        timestamp,
+        message: `{"level":"warn","time:${
+          timestamp + 2
+        },memory":57483264,"msg":"some warning message"}`,
+      },
+      {
+        id: '36662203685206665857122522209448141537241116769592410115',
+        timestamp,
+        message: `{"level":"error","time":${
+          timestamp + 3
+        },"err":{"type":"Error","message":"test error","stack":"Error: test error\\n    at handler (/app/.next/server/pages/api/bla.js:44:13)\\n    at Object.apiResolver (/app/node_modules/next/dist/server/api-utils.js:101:15)"},"msg":"error object logged with pino"}`,
+      },
+    ],
   }
 
-  await handler(event)
+  await handler(encode(event))
 }
 
 main().catch(console.error)

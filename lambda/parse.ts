@@ -8,22 +8,22 @@ export type LogDoc = {
   msg?: string
 } & Record<string, unknown>
 
-export function toDocs(data: CloudWatchLogsDecodedData): LogDoc[] {
-  const parseMessage = getMessageParser(data)
+export function toDocs({ logGroup, logStream, logEvents }: CloudWatchLogsDecodedData): LogDoc[] {
+  const parseMessage = getMessageParser(logGroup, logStream)
   if (!parseMessage) {
-    console.log(`no known parser for ${data.logGroup}/${data.logStream}}`)
+    console.log(`no known parser for ${logGroup}/${logStream}}`)
     return []
   }
 
-  const envAndApp = getEnvAndApp(data.logGroup)
-  return data.logEvents.map((logEvent) => ({
+  const envAndApp = getEnvAndApp(logGroup)
+  return logEvents.map((logEvent) => ({
     '@timestamp': new Date(logEvent.timestamp).toISOString(),
     ...envAndApp,
     ...parseMessage(logEvent.message),
   }))
 }
 
-function getMessageParser({ logGroup, logStream }: CloudWatchLogsDecodedData) {
+function getMessageParser(logGroup: string, logStream: string) {
   if (logGroup.startsWith('/aws/lambda')) return parseLambdaMessage
   if (logStream.endsWith('/application.log')) return parseAppMessage
   return undefined
