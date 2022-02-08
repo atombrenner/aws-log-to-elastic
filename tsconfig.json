@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/node14",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    "isolatedModules": true
   }
 }
