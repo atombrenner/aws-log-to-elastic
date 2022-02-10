@@ -208,14 +208,14 @@ describe('toDoc', () => {
         '@timestamp': '2009-02-13T23:31:30.123Z',
         app: 'some-app',
         env: 'dev',
-        level: 'info',
+        level: 'none',
         msg: '',
       },
       {
         '@timestamp': '2009-02-13T23:31:31.123Z',
         app: 'some-app',
         env: 'dev',
-        level: 'info',
+        level: 'none',
         msg: '',
       },
       {
