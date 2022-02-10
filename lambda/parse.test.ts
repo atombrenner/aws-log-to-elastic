@@ -126,6 +126,11 @@ describe('parseMessage', () => {
     expect(parsed.field1).toEqual(1)
   })
 
+  it('should not merge duplicate msg', () => {
+    const parsed = parseMessage('{"msg":"error", "err":{"message":"error", "stack":"stack"}}')
+    expect(parsed).toEqual({ msg: 'error', stack: 'stack' })
+  })
+
   it('should not add "-" to msg if no msgs are merged', () => {
     const parsed: any = parseMessage('{"msg": "some message"}')
     expect(parsed.msg).toEqual('some message')

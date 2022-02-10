@@ -140,9 +140,11 @@ function tryParse(text: string): any {
   }
 }
 
-const joinMsg = (...args: unknown[]) =>
-  args
+const joinMsg = (arg1: unknown, arg2: unknown) => {
+  const normalized = [arg1, arg2]
     .filter((s): s is string => Boolean(s) && typeof s === 'string')
     .map((s) => (s ? s.trim() : ''))
     .filter(Boolean)
-    .join(' - ')
+
+  return normalized[0] === normalized[1] ? normalized[0] : normalized.join(' - ')
+}
