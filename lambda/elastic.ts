@@ -4,6 +4,25 @@ import { LogDoc } from './parse'
 
 const bulkUrl = process.env.ELASTIC_URL + '/_bulk'
 
+export async function postToElastic(docs: LogDoc[]): Promise<string> {
+  const body = toBulk(docs)
+  return body ? summary(await postBulk(body)) : 'nothing to post'
+}
+
+export function toBulk(docs: LogDoc[]): string {
+  const bulk: string[] = []
+  for (const doc of docs) {
+    if (doc.msg) {
+      const day = doc['@timestamp'].substring(0, 10)
+      bulk.push(JSON.stringify({ create: { _index: `daily-logs-${day}` } }))
+      doc.hash ||= hash(doc.msg)
+      bulk.push(JSON.stringify(doc))
+    }
+  }
+  bulk.push('')
+  return bulk.join('\n')
+}
+
 type BulkIndexResponse = {
   errors: boolean
   took: number
@@ -25,25 +44,6 @@ async function postBulk(body: string): Promise<BulkIndexResponse> {
   }
 
   return await response.json()
-}
-
-export async function postToElastic(docs: LogDoc[]): Promise<string> {
-  const body = toBulk(docs)
-  return body ? summary(await postBulk(body)) : 'nothing to post'
-}
-
-export function toBulk(docs: LogDoc[]): string {
-  const bulk: string[] = []
-  for (const doc of docs) {
-    if (doc.msg) {
-      const day = doc['@timestamp'].substring(0, 10)
-      bulk.push(JSON.stringify({ create: { _index: `daily-logs-${day}` } }))
-      doc.hash ||= hash(doc.msg)
-      bulk.push(JSON.stringify(doc))
-    }
-  }
-  bulk.push('')
-  return bulk.join('\n')
 }
 
 function hash(message: string): string {

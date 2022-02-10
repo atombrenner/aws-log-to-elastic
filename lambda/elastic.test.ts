@@ -1,7 +1,7 @@
 import { toBulk } from './elastic'
 
 describe('toBulk', () => {
-  test('bulk data should end with a newline', () => {
+  it('should end body with a newline', () => {
     const body = toBulk([
       {
         '@timestamp': '2000-01-31T12:00:00.000Z',
@@ -15,7 +15,7 @@ describe('toBulk', () => {
     expect(body).toMatch(/\n$/)
   })
 
-  test('bulk message should have a hash', () => {
+  it('should generate a hash field for each msg', () => {
     const body = toBulk([
       {
         '@timestamp': '2000-01-31T12:00:00.000Z',
@@ -31,5 +31,12 @@ describe('toBulk', () => {
     const lastDoc = JSON.parse(lines[lines.length - 2])
     expect(lastDoc).toHaveProperty('hash')
     expect(lastDoc.hash).toHaveLength(16)
+  })
+
+  it('should filter emtpy messages', () => {
+    const body = toBulk([
+      { '@timestamp': '2000-01-01', app: 'app', env: 'env', level: 'info', msg: '' },
+    ])
+    expect(body).toEqual('')
   })
 })

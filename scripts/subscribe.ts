@@ -2,7 +2,6 @@ import { STS } from '@aws-sdk/client-sts'
 import { CloudWatchLogs, DescribeLogGroupsCommandOutput } from '@aws-sdk/client-cloudwatch-logs'
 
 const StackName = process.env.STACK_NAME
-
 const cw = new CloudWatchLogs({ maxAttempts: 6 })
 const sts = new STS({})
 
