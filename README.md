@@ -1,14 +1,18 @@
 # aws-log-to-elastic
 
-Send CloudWatch LogStreams to Elastic
+Send CloudWatch LogGroups to Elastic
 
 ## Motivation
 
 Kibana and ElasticSearch are powerful tools to analyze structured logs.
-You can easily subscribe to AWS Logstreams to forward your logs to elastic.
+You can easily subscribe to AWS Log Groups to get notified of data
+written to log streams. Ths data needs to be parse and send to elastic.
 But ElasticSearch nowadays is huge and offers lots of features.
-This repo captures my experience with setups for high-volume logging.
-It is best for node applications using structured logging running on AWS lambda.
+Also you need to be aware of some pitfalls to capture all log data
+and not silently ignore special errors, e.g. Lamba Invocation errors.
+This repo captures my experience with setups for high-volume logging
+and parsing structured json logs mixed with unstructured logs.
+It is best for node applications using running on AWS lambda.
 
 ## Index setup
 
@@ -37,3 +41,5 @@ The environment variable `ELASTIC_URL` takes the authenticated elastic.
 - `npm run update` apply the index configuration
 - `npm run stack` create or update the CloudFormation stack (the log forwarding lambda function)
 - `npm run deploy` build and deploy the lambda function
+- `npm run subscribe PATTERN` subscribe all log groups matching the PATTERN
+- `npm run unsubscribe` unsusbscribes all log groups

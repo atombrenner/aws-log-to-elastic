@@ -14,7 +14,8 @@
     "dist": "tsc && npm test && npm run build && npm run zip",
     "predeploy": "npm run dist",
     "deploy": "aws lambda update-function-code --function-name ${STACK_NAME} --zip-file fileb://dist/lambda.zip --output text --query FunctionArn",
-    "subscribe": "ts-node -T scripts/subscribe"
+    "subscribe": "ts-node -T scripts/subscribe",
+    "unsubscribe": "ts-node -T scripts/unsubscribe"
   },
   "repository": {
     "type": "git",

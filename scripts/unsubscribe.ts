@@ -1,10 +1,7 @@
-import { STS } from '@aws-sdk/client-sts'
 import { CloudWatchLogs, DescribeLogGroupsCommandOutput } from '@aws-sdk/client-cloudwatch-logs'
 import { makeThrottle } from '../lib/throttle'
 
-const StackName = process.env.STACK_NAME
 const cw = new CloudWatchLogs({ maxAttempts: 6 })
-const sts = new STS({})
 const throttle = makeThrottle(5)
 
 async function* getLogGroups() {
@@ -19,17 +16,15 @@ async function* getLogGroups() {
 }
 
 async function main() {
-  const { Account } = await sts.getCallerIdentity({})
   for await (const { logGroupName } of getLogGroups()) {
-    if (logGroupName?.match(/^\/aws\/lambda\/.*(dev|prod)$/)) {
-      await throttle()
-      await cw.putSubscriptionFilter({
-        logGroupName,
-        filterName: 'ship-to-elastic',
-        filterPattern: '',
-        destinationArn: `arn:aws:lambda:eu-central-1:${Account}:function:${StackName}`,
-      })
-      console.log(`${logGroupName} is now shipping logs to elastic`)
+    await throttle()
+    const response = await cw.describeSubscriptionFilters({ logGroupName })
+    if (response) {
+      for (const { filterName } of response.subscriptionFilters ?? []) {
+        console.log(`Deleting subscription "${filterName}" for ${logGroupName}`)
+        await throttle()
+        await cw.deleteSubscriptionFilter({ logGroupName, filterName })
+      }
     }
   }
 }
