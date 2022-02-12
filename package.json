@@ -18,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/atombrenner/aws-logstreams-to-elastic.git"
+    "url": "git+https://github.com/atombrenner/aws-log-to-elastic.git"
   },
   "author": "Christian Rodemeyer",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/atombrenner/aws-logstreams-to-elastic/issues"
+    "url": "https://github.com/atombrenner/aws-log-to-elastic/issues"
   },
-  "homepage": "https://github.com/atombrenner/aws-logstreams-to-elastic#readme",
+  "homepage": "https://github.com/atombrenner/aws-log-to-elastic#readme",
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node"

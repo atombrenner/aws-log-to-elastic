@@ -1,6 +1,6 @@
-# aws-logstreams-to-elastic
+# aws-log-to-elastic
 
-Send CloudWatch Log Streams to Elastic
+Send CloudWatch LogStreams to Elastic
 
 ## Motivation
 
