@@ -19,7 +19,7 @@ export function toDocs({ logGroup, logStream, logEvents }: CloudWatchLogsDecoded
 
   const envAndApp = getEnvAndApp(logGroup)
   return logEvents.map(({ timestamp, message }) => {
-    const [lambdaProps, remainingMessage] = isLambda ? parseLambdaProps(message) : [{}, '']
+    const [lambdaProps, remainingMessage] = isLambda ? parseLambdaProps(message) : [{}, message]
     return {
       level: 'none',
       '@timestamp': new Date(timestamp).toISOString(),

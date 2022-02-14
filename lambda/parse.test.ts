@@ -174,6 +174,44 @@ describe('toDoc', () => {
     } as CloudWatchLogsDecodedData
   }
 
+  it('should ingest plain text application logs', () => {
+    const data = {
+      logGroup: 'some-app-prod',
+      logStream: 'i-4711/application.log',
+      logEvents: [{ timestamp: 1234567890123, message: 'message' }],
+    } as CloudWatchLogsDecodedData
+    const docs = toDocs(data)
+    expect(docs).toEqual([
+      {
+        '@timestamp': '2009-02-13T23:31:30.123Z',
+        level: 'none',
+        app: 'some-app',
+        env: 'prod',
+        msg: 'message',
+      },
+    ])
+  })
+
+  it('should ingest json application logs', () => {
+    const data = {
+      logGroup: 'some-app-prod',
+      logStream: 'i-4711/application.log',
+      logEvents: [
+        { timestamp: 1234567890123, message: '{"msg":"message","level":"info","app":"other"}' },
+      ],
+    } as CloudWatchLogsDecodedData
+    const docs = toDocs(data)
+    expect(docs).toEqual([
+      {
+        '@timestamp': '2009-02-13T23:31:30.123Z',
+        level: 'info',
+        app: 'other',
+        env: 'prod',
+        msg: 'message',
+      },
+    ])
+  })
+
   it('should use ingest time for @timestamp if no timestamp is present in message', () => {
     const data = fakeDecodedLambdaData(`{"level":"info","msg":"some info message"}`)
     const docs = toDocs(data)
