@@ -1,4 +1,4 @@
-# Definition of an ILM (Index Lifecycle Management) policy
+# Definition of an Index Lifecycle Management Policy
 ---
 policy:
   phases:

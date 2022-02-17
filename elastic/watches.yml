@@ -1,0 +1,16 @@
+# Watches Definition File
+---
+- id: my-first-watch
+  interval: 15m
+  query: +env:prod +app:some-app +level:error
+  last: 1h
+  condition: $HITS > 5
+  message: '*ATTENTION*: $HITS *some-app errors* per hour. Goto <https://atombrenner.kb.eu-central-1.aws.cloud.es.io:9243/goto/1234|Kibana> for details.'
+  throttle: 24h
+- id: my-second-watch
+  interval: 1h
+  query: +env:prod +app:some-other-app +status:500 +level:error
+  last: 12h
+  condition: $HITS > 5
+  message: '*ATTENTION*: $HITS *internal server errors* in the last 12 hours. Goto <https://atombrenner.kb.eu-central-1.aws.cloud.es.io:9243/goto/12345|Kibana> for details.'
+  throttle: 24h
