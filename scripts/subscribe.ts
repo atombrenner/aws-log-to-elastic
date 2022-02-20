@@ -20,8 +20,12 @@ async function* getLogGroups() {
 
 async function main() {
   const { Account } = await sts.getCallerIdentity({})
+  const pattern = new RegExp(process.argv[2] || '^/aws/lambda/', 'i')
+  console.log(`Subscribing pattern ${pattern}`)
+
   for await (const { logGroupName } of getLogGroups()) {
-    if (logGroupName?.match(/^\/aws\/lambda\/.*(dev|prod)$/)) {
+    if (logGroupName === `/aws/lambda/${StackName}`) continue // never subscribe to own logs
+    if (logGroupName?.match(pattern)) {
       await throttle()
       await cw.putSubscriptionFilter({
         logGroupName,
