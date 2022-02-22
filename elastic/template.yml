@@ -15,6 +15,9 @@ settings:
       lowercase:
         type: 'custom'
         filter: ['lowercase']
+  mapping:
+    depth.limit: 3
+    total_fields.limit: 2000
 mappings:
   properties:
     msg: { type: 'text' }
