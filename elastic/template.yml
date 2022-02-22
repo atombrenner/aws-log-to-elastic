@@ -19,6 +19,11 @@ settings:
     depth.limit: 3
     total_fields.limit: 2000
 mappings:
+  dynamic_templates: # prevent automatic generation of 'field.keyword' for string fields
+    - strings:
+        match_mapping_type: string
+        mapping:
+          type: text
   properties:
     msg: { type: 'text' }
     hash: { type: 'keyword' }
