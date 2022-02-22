@@ -8,7 +8,7 @@ const level = 'info'
 const timestamp = new Date().toISOString()
 
 async function main() {
-  // index some documents
+  // create some documents
   const docs: LogDoc[] = [
     { '@timestamp': timestamp, app, env, level, msg: 'one' },
     { '@timestamp': timestamp, app, env, level, msg: 'two' },
@@ -17,8 +17,8 @@ async function main() {
     { '@timestamp': timestamp, app, env, level, msg: 'five' },
     { '@timestamp': timestamp, app, env, level, msg: 'next day' },
   ]
-  const result = await postToElastic(docs)
-  console.log(result)
+  await postToElastic(docs)
+  console.log('done')
 }
 
 main().catch(console.error)

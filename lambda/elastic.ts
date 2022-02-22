@@ -4,9 +4,21 @@ import { LogDoc } from './parse'
 
 const bulkUrl = process.env.ELASTIC_URL + '/_bulk'
 
-export async function postToElastic(docs: LogDoc[]): Promise<string> {
+export async function postToElastic(docs: LogDoc[]): Promise<void> {
   const body = toBulk(docs)
-  return body ? summary(await postBulk(body)) : 'nothing to post'
+  if (body) {
+    const response = await postBulk(body)
+    console.info(`posted ${response.items.length} entries in ${response.took}ms`)
+    if (response.errors) {
+      response.items
+        .filter((item) => item.create && item.create.error)
+        .forEach((item) => {
+          console.error(JSON.stringify(item.create.error, null, 2))
+        })
+    }
+  } else {
+    console.info('nothing to post')
+  }
 }
 
 export function toBulk(docs: LogDoc[]): string {
@@ -23,13 +35,13 @@ export function toBulk(docs: LogDoc[]): string {
   return bulk.join('\n')
 }
 
-type BulkIndexResponse = {
+type BulkCreateResponse = {
   errors: boolean
   took: number
-  items: { index: { status: string; error: { reason: string } } }[]
+  items: { create: { status: string; error: { reason: string } } }[]
 }
 
-async function postBulk(body: string): Promise<BulkIndexResponse> {
+async function postBulk(body: string): Promise<BulkCreateResponse> {
   const response = await fetch(bulkUrl, {
     method: 'POST',
     headers: {
@@ -48,15 +60,4 @@ async function postBulk(body: string): Promise<BulkIndexResponse> {
 
 function hash(message: string): string {
   return createHash('sha1').update(message).digest('hex').substring(0, 16)
-}
-
-function summary(result: BulkIndexResponse) {
-  let msg = `posted ${result.items.length} entries in ${result.took}ms`
-  if (result.errors) {
-    msg += result.items
-      .filter((item) => item.index && item.index.error)
-      .map((item) => ({ status: item.index.status, reason: item.index.error.reason }))
-      .reduce((msg, err) => `${msg}\n${err.status} -> ${err.reason}`, `\nERRORS:`)
-  }
-  return msg
 }
