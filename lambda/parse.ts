@@ -83,7 +83,7 @@ export function parseLambdaProps(message: string): [LambdaProps, string] {
   // check if we see a console.log from lambda runtime that looks like this
   // 2019-03-01T10:10:07.227Z	75f445ce-bf71-4bdf-9826-0e3817425752	INFO some message
   const match = message.match(lambdaLogPattern)
-  if (!match) return [{}, message]
+  if (!match) return [{ level: 'lambda' }, message]
 
   return [
     { '@timestamp': match[1], level: match[3].toLowerCase(), reqid: match[2] },
