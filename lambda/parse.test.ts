@@ -163,6 +163,44 @@ describe('parseMessage', () => {
     expect(parsed.msg).toEqual('message - error message')
     expect(parsed.stack).toEqual(message.err.stack)
   })
+
+  it('should not parse deeply nested json', () => {
+    const message = JSON.stringify({
+      nested: {
+        some1: 'data',
+        level1: { some2: 'data' },
+      },
+      some: 'data',
+    })
+    const parsed = parseMessage(message)
+    expect(parsed.msg).toEqual(message)
+  })
+
+  it('should not parse records with more than 10 fields', () => {
+    const message = JSON.stringify({
+      one: 1,
+      two: 2,
+      three: 3,
+      four: 4,
+      five: 5,
+      six: 6,
+      seven: 7,
+      eight: 8,
+      nine: 9,
+      ten: 10,
+      eleven: 11,
+    })
+    const parsed = parseMessage(message)
+    expect(parsed.msg).toEqual(message)
+  })
+
+  it('should not allow numeric field names', () => {
+    const message = JSON.stringify({
+      '1': 'bla',
+    })
+    const parsed = parseMessage(message)
+    expect(parsed.msg).toEqual(message)
+  })
 })
 
 describe('toDoc', () => {

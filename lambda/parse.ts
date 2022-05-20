@@ -1,12 +1,16 @@
 import { CloudWatchLogsDecodedData } from 'aws-lambda'
 
+type SimpleValue = boolean | number | string
+type SimpleRecord = Record<string, SimpleValue | SimpleValue[]>
+type SimpleNestedRecord = Record<string, SimpleValue | SimpleValue[] | SimpleRecord>
+
 export type LogDoc = {
   ['@timestamp']: string
   level: string
   app: string
   env: string
   msg?: string
-} & Record<string, unknown>
+} & SimpleRecord
 
 export function toDocs({ logGroup, logStream, logEvents }: CloudWatchLogsDecodedData): LogDoc[] {
   const isLambda = logGroup.startsWith('/aws/lambda')
@@ -101,6 +105,7 @@ export function parseMessage(message: string) {
   transformLambdaError(parsed)
   transformPinoTime(parsed)
   transformPinoErr(parsed)
+
   parsed.msg = joinMsg(message.substring(0, startJson), parsed.msg)
 
   return parsed
@@ -132,15 +137,52 @@ function transformPinoErr(parsed: Record<string, unknown>) {
   }
 }
 
-function tryParse(text: string): any {
+// to prevent field explosion in elastic search we disallow
+// - more than 10 fields
+// - numeric field names
+// - deeply nested objects
+function tryParse(text: string): SimpleNestedRecord | undefined {
   try {
-    return JSON.parse(text)
+    const parsed = JSON.parse(text)
+    return isSimpleNestedRecord(parsed) ? parsed : undefined
   } catch {
     return undefined
   }
 }
 
-const joinMsg = (arg1: unknown, arg2: unknown) => {
+function isSimpleNestedRecord(record: unknown): record is SimpleNestedRecord {
+  return (
+    isStringRecord(record) &&
+    Object.values(record).every((v) => isSimpleValue(v) || isSimpleArray(v) || isSimpleRecord(v))
+  )
+}
+
+function isSimpleRecord(record: unknown): record is SimpleRecord {
+  return (
+    isStringRecord(record) &&
+    Object.values(record).every((v) => isSimpleValue(v) || isSimpleArray(v))
+  )
+}
+
+function isStringRecord(record: unknown): record is Record<string, unknown> {
+  if (!record) return false
+  if (typeof record !== 'object') return false
+  if (Array.isArray(record)) return false
+  const keys = Object.keys(record)
+  if (keys.length > 10) return false
+  if (!keys.every((key) => Number.isNaN(Number(key)))) return false
+  return true
+}
+
+function isSimpleArray(array: unknown): array is SimpleValue[] {
+  return Array.isArray(array) && array.every(isSimpleValue)
+}
+
+function isSimpleValue(value: unknown): value is SimpleValue {
+  return ['boolean', 'number', 'string'].includes(typeof value)
+}
+
+function joinMsg(arg1: unknown, arg2: unknown) {
   const normalized = [arg1, arg2]
     .filter((s): s is string => Boolean(s) && typeof s === 'string')
     .map((s) => (s ? s.trim() : ''))
