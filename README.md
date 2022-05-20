@@ -5,8 +5,8 @@ Send CloudWatch LogGroups to Elastic
 ## Motivation
 
 Kibana and ElasticSearch are powerful tools to analyze structured logs.
-You can easily subscribe to AWS Log Groups to get notified of data
-written to log streams. This data needs to be parsed and send to elastic.
+You can easily subscribe a to AWS Log Groups to get notified of data
+written to log streams. This data needs to be parsed and sent to elastic.
 But ElasticSearch nowadays is huge and offers lots of features.
 Also you need to be aware of some pitfalls to capture all log data
 and not silently ignore special errors, e.g. Lamba Invocation errors.

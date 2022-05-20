@@ -55,7 +55,7 @@ async function postBulk(body: string): Promise<BulkCreateResponse> {
     throw Error(`HTTP ${response.status} ${response.statusText}: ${errorText}`)
   }
 
-  return await response.json()
+  return (await response.json()) as BulkCreateResponse
 }
 
 function hash(message: string): string {
