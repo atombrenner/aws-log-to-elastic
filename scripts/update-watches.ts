@@ -62,7 +62,7 @@ async function updateWatch(watch: any) {
   }
 
   console.log(`Updating watch '${slack}-${watch.id}'`)
-  await putJson(`/_xpack/watcher/watch/${slack}-${watch.id}`, body)
+  await putJson(`/_watcher/watch/${slack}-${watch.id}`, body)
 }
 
 function makeQuery(watch: any) {
@@ -117,7 +117,7 @@ async function removeOrphanedWatches(watches: any[]) {
 
   for (const id of orphaned) {
     console.log(`Deleting watch ${id}`)
-    await deleteJson(`/_xpack/watcher/watch/${id}`)
+    await deleteJson(`/_watcher/watch/${id}`)
   }
 }
 
