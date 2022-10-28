@@ -10,7 +10,7 @@ describe('parseLambdaProps', () => {
     expect(props.duration).toBe(998)
     expect(props.memoryUsed).toBe(38)
     expect(props.memorySize).toBe(128)
-    expect(props.reqid).toEqual('f140eb5e') // f140eb5e-809d-43dd-b93a-439b218c1873
+    expect(props.reqid).toEqual('f140eb5e-809d-43dd-b93a-439b218c1873')
     expect(remainingMessage).toEqual(
       'Duration: 998.63 ms	Billed Duration: 1000 ms Memory Size: 128 MB	Max Memory Used: 38 MB'
     )
@@ -303,7 +303,7 @@ describe('toDoc', () => {
         memorySize: 128,
         memoryUsed: 71,
         msg: 'Duration: 1457.70 ms\tBilled Duration: 1458 ms\tMemory Size: 128 MB\tMax Memory Used: 71 MB\tInit Duration: 293.13 ms',
-        reqid: '8125c1fd',
+        reqid: '8125c1fd-6f0f-4b2f-8ff0-b6b94a01f325',
       },
     ])
   })

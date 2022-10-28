@@ -75,7 +75,7 @@ export function parseLambdaProps(message: string): [LambdaProps, string] {
     return [
       {
         level: 'lambda',
-        reqid: message.substring(18, 26),
+        reqid: message.substring(18, 54),
         duration: +match![1],
         memorySize: +match![2],
         memoryUsed: +match![3],
