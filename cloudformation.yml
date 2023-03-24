@@ -12,7 +12,7 @@ Resources:
     Properties:
       FunctionName: !Ref AWS::StackName
       Description: Send Log Streams to Elastic
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Timeout: 5
       MemorySize: 256
       Handler: index.handler
