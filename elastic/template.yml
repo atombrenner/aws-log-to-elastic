@@ -6,6 +6,7 @@ settings:
     number_of_shards: 1
     number_of_replicas: 0
     lifecycle.name: daily-logs
+    default_pipeline: daily-logs
   analysis:
     analyzer:
       pattern_lowercase:

@@ -1,0 +1,14 @@
+# Definition of an Ingest Pipeline
+---
+description: add index name and @timestamp if misssing
+processors:
+  - set:
+      field: '@timestamp'
+      value: '{{{_ingest.timestamp}}}'
+      override: false
+  - date_index_name:
+      field: '@timestamp'
+      date_rounding: 'd'
+      index_name_prefix: 'daily-logs-'
+      index_name_format: 'yyyy-MM-dd'
+      date_formats: ['ISO8601']
