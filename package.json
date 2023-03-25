@@ -46,7 +46,7 @@
     "@tsconfig/node18": "^1.0.1",
     "@types/aws-lambda": "^8.10.97",
     "@types/jest": "^29.2.0",
-    "@types/node": "^18.15.7",
+    "@types/node": "^18.15.9",
     "@types/node-fetch": "^2.6.1",
     "@types/yamljs": "^0.2.31",
     "esbuild": "^0.17.12",
