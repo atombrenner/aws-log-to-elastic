@@ -182,11 +182,14 @@ describe('parseMessage', () => {
     })
     const parsed = parseMessage(message)
     expect(parsed.level).toEqual('error')
-    expect(parsed.msg).toMatch(message)
+    expect(parsed.msg).toMatch('too complex json logged')
+    expect(parsed.too_complex_json).toEqual(message)
   })
 
   it('should not parse records with more than 20 fields', () => {
-    const message = JSON.stringify({
+    const json = JSON.stringify({
+      level: 'warning',
+      msg: 'some message',
       one: 1,
       two: 2,
       three: 3,
@@ -209,9 +212,11 @@ describe('parseMessage', () => {
       twenty: 20,
       twentyone: 21,
     })
+    const message = 'bla ' + json
     const parsed = parseMessage(message)
-    expect(parsed.level).toEqual('error')
-    expect(parsed.msg).toMatch(message)
+    expect(parsed.level).toEqual('warning')
+    expect(parsed.msg).toEqual('bla some message')
+    expect(parsed.too_complex_json).toEqual(json)
   })
 
   it('should not allow numeric field names', () => {
@@ -220,7 +225,7 @@ describe('parseMessage', () => {
     })
     const parsed = parseMessage(message)
     expect(parsed.level).toEqual('error')
-    expect(parsed.msg).toMatch(message)
+    expect(parsed.too_complex_json).toMatch(message)
   })
 })
 

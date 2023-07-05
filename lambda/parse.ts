@@ -156,7 +156,11 @@ function tryParse(text: string): SimpleNestedRecord {
     const parsed = JSON.parse(text)
     return isSimpleNestedRecord(parsed)
       ? parsed
-      : { level: 'error', msg: 'too complex json, please fix logging:\n' + text }
+      : {
+          level: parsed.level ?? 'error',
+          msg: parsed.msg ?? 'too complex json logged',
+          too_complex_json: text,
+        }
   } catch {
     return { msg: text } // silently ignore JSON parsing because logs can contain literal curly braces if no json logger is used
   }
