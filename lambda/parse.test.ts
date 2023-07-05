@@ -16,19 +16,19 @@ describe('parseLambdaProps', () => {
     )
   })
 
-  it('should ignore and swallow START message', () => {
+  it('should return empty message string for START logs', () => {
     const [props, remainingMessage] = parseLambdaProps(
       'START RequestId: bf155fd9-a3d2-4001-be3b-e69afc5816c8 Version: $LATEST'
     )
-    expect(props).toEqual({})
+    expect(props).toEqual({ level: 'lambda' })
     expect(remainingMessage).toEqual('')
   })
 
-  it('should ignore and swallow END message', () => {
+  it('should return empty message string for END logs', () => {
     const [props, remainingMessage] = parseLambdaProps(
       'END RequestId: bf155fd9-a3d2-4001-be3b-e69afc5816c8'
     )
-    expect(props).toEqual({})
+    expect(props).toEqual({ level: 'lambda' })
     expect(remainingMessage).toEqual('')
   })
 
@@ -101,7 +101,7 @@ describe('parseMessage', () => {
     }`
     const parsed = parseMessage(invokeError)
     expect(parsed.level).toEqual('error')
-    expect(parsed.msg).toEqual('Invoke Error - some error message')
+    expect(parsed.msg).toEqual('Invoke Error some error message')
     expect(parsed.stack).toEqual(
       'Error: some error message\n    at _homogeneousError (/var/runtime/CallbackContext.js:13:12)\n    at Runtime.fail [as handler] (/var/task/webpack:/save-data/src/index.ts:22:13)'
     )
@@ -121,7 +121,14 @@ describe('parseMessage', () => {
     const parsed = parseMessage(
       'some message {"level":"warn", "field1": 1, "msg": "second message"}'
     )
-    expect(parsed.msg).toEqual('some message - second message')
+    expect(parsed.msg).toEqual('some message second message')
+    expect(parsed.level).toEqual('warn')
+    expect(parsed.field1).toEqual(1)
+  })
+
+  it('should merge non string msg prop', () => {
+    const parsed = parseMessage('some message {"level":"warn", "field1": 1, "msg": "47"}')
+    expect(parsed.msg).toEqual('some message 47')
     expect(parsed.level).toEqual('warn')
     expect(parsed.field1).toEqual(1)
   })
@@ -138,7 +145,8 @@ describe('parseMessage', () => {
 
   it('should log original message if message contains curly braces but no valid json', () => {
     const parsed = parseMessage('some { curly braces }')
-    expect(parsed.msg).toEqual('some { curly braces }')
+    expect(parsed.level).toBeUndefined()
+    expect(parsed.msg).toMatch('some { curly braces }')
   })
 
   it('should add timestamp for time property', () => {
@@ -160,7 +168,7 @@ describe('parseMessage', () => {
     }
     const parsed = parseMessage(JSON.stringify(message))
 
-    expect(parsed.msg).toEqual('message - error message')
+    expect(parsed.msg).toEqual('message error message')
     expect(parsed.stack).toEqual(message.err.stack)
   })
 
@@ -173,10 +181,11 @@ describe('parseMessage', () => {
       some: 'data',
     })
     const parsed = parseMessage(message)
-    expect(parsed.msg).toEqual(message)
+    expect(parsed.level).toEqual('error')
+    expect(parsed.msg).toMatch(message)
   })
 
-  it('should not parse records with more than 10 fields', () => {
+  it('should not parse records with more than 20 fields', () => {
     const message = JSON.stringify({
       one: 1,
       two: 2,
@@ -189,9 +198,20 @@ describe('parseMessage', () => {
       nine: 9,
       ten: 10,
       eleven: 11,
+      twelve: 12,
+      thirten: 13,
+      fourteen: 14,
+      fivteen: 15,
+      sixteen: 16,
+      seventeen: 17,
+      eighteen: 18,
+      nineteen: 19,
+      twenty: 20,
+      twentyone: 21,
     })
     const parsed = parseMessage(message)
-    expect(parsed.msg).toEqual(message)
+    expect(parsed.level).toEqual('error')
+    expect(parsed.msg).toMatch(message)
   })
 
   it('should not allow numeric field names', () => {
@@ -199,7 +219,8 @@ describe('parseMessage', () => {
       '1': 'bla',
     })
     const parsed = parseMessage(message)
-    expect(parsed.msg).toEqual(message)
+    expect(parsed.level).toEqual('error')
+    expect(parsed.msg).toMatch(message)
   })
 })
 
@@ -284,26 +305,43 @@ describe('toDoc', () => {
         '@timestamp': '2009-02-13T23:31:30.123Z',
         app: 'some-app',
         env: 'dev',
-        level: 'none',
+        level: 'lambda',
         msg: '',
       },
       {
         '@timestamp': '2009-02-13T23:31:31.123Z',
         app: 'some-app',
         env: 'dev',
-        level: 'none',
+        level: 'lambda',
         msg: '',
       },
       {
         '@timestamp': '2009-02-13T23:31:32.123Z',
         app: 'some-app',
-        duration: 1457,
         env: 'dev',
         level: 'lambda',
-        memorySize: 128,
-        memoryUsed: 71,
         msg: 'Duration: 1457.70 ms\tBilled Duration: 1458 ms\tMemory Size: 128 MB\tMax Memory Used: 71 MB\tInit Duration: 293.13 ms',
         reqid: '8125c1fd-6f0f-4b2f-8ff0-b6b94a01f325',
+        duration: 1457,
+        memorySize: 128,
+        memoryUsed: 71,
+      },
+    ])
+  })
+
+  it('should process INIT_START messages', () => {
+    const data = fakeDecodedLambdaData(
+      'INIT_START Runtime Version: nodejs:16.v14	Runtime Version ARN: arn:aws:lambda:eu-central-1::runtime:699b51cc1e44cad9b43e446b3b6f7e0834a78366955dc81cc7b459b0aa3f9175'
+    )
+    const docs = toDocs(data)
+    expect(docs).toEqual([
+      {
+        '@timestamp': '2009-02-13T23:31:30.123Z',
+        app: 'some-app',
+        env: 'dev',
+        level: 'lambda',
+        runtime: 'nodejs:16.v14',
+        msg: 'INIT_START Runtime Version: nodejs:16.v14	Runtime Version ARN: arn:aws:lambda:eu-central-1::runtime:699b51cc1e44cad9b43e446b3b6f7e0834a78366955dc81cc7b459b0aa3f9175',
       },
     ])
   })
