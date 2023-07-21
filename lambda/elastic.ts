@@ -24,12 +24,11 @@ export async function postToElastic(docs: LogDoc[]): Promise<void> {
 export function toBulk(docs: LogDoc[]): string {
   const bulk: string[] = []
   for (const doc of docs) {
-    if (doc.msg) {
-      const day = doc['@timestamp'].substring(0, 10)
-      bulk.push(JSON.stringify({ create: { _index: `daily-logs-${day}` } }))
-      doc.hash ||= hash(doc.msg)
-      bulk.push(JSON.stringify(doc))
-    }
+    if (doc.level === '-ignore-') continue
+    const day = doc['@timestamp'].substring(0, 10)
+    bulk.push(JSON.stringify({ create: { _index: `daily-logs-${day}` } }))
+    doc.hash ||= hash(doc.msg)
+    bulk.push(JSON.stringify(doc))
   }
   bulk.push('')
   return bulk.join('\n')

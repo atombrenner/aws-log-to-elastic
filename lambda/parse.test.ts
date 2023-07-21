@@ -16,19 +16,19 @@ describe('parseLambdaProps', () => {
     )
   })
 
-  it('should return empty message string for START logs', () => {
+  it('should return "-ignore-" log level for START logs', () => {
     const [props, remainingMessage] = parseLambdaProps(
       'START RequestId: bf155fd9-a3d2-4001-be3b-e69afc5816c8 Version: $LATEST'
     )
-    expect(props).toEqual({ level: 'lambda' })
+    expect(props).toEqual({ level: '-ignore-' })
     expect(remainingMessage).toEqual('')
   })
 
-  it('should return empty message string for END logs', () => {
+  it('should return "-ignore-" log level for END logs', () => {
     const [props, remainingMessage] = parseLambdaProps(
       'END RequestId: bf155fd9-a3d2-4001-be3b-e69afc5816c8'
     )
-    expect(props).toEqual({ level: 'lambda' })
+    expect(props).toEqual({ level: '-ignore-' })
     expect(remainingMessage).toEqual('')
   })
 
@@ -310,14 +310,14 @@ describe('toDoc', () => {
         '@timestamp': '2009-02-13T23:31:30.123Z',
         app: 'some-app',
         env: 'dev',
-        level: 'lambda',
+        level: '-ignore-',
         msg: '',
       },
       {
         '@timestamp': '2009-02-13T23:31:31.123Z',
         app: 'some-app',
         env: 'dev',
-        level: 'lambda',
+        level: '-ignore-',
         msg: '',
       },
       {

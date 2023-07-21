@@ -33,9 +33,9 @@ describe('toBulk', () => {
     expect(lastDoc.hash).toHaveLength(16)
   })
 
-  it('should filter emtpy messages', () => {
+  it('should filter logs with "-ignore-" level', () => {
     const body = toBulk([
-      { '@timestamp': '2000-01-01', app: 'app', env: 'env', level: 'info', msg: '' },
+      { '@timestamp': '2000-01-01', app: 'app', env: 'env', level: '-ignore-', msg: '' },
     ])
     expect(body).toEqual('')
   })

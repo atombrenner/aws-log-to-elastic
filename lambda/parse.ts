@@ -9,7 +9,7 @@ export type LogDoc = {
   level: string
   app: string
   env: string
-  msg?: string
+  msg: string
 } & SimpleRecord
 
 export function toDocs({ logGroup, logStream, logEvents }: CloudWatchLogsDecodedData): LogDoc[] {
@@ -26,6 +26,7 @@ export function toDocs({ logGroup, logStream, logEvents }: CloudWatchLogsDecoded
     const [lambdaProps, remainingMessage] = isLambda ? parseLambdaProps(message) : [{}, message]
     return {
       level: 'none',
+      msg: '',
       '@timestamp': new Date(timestamp).toISOString(),
       ...envAndApp,
       ...lambdaProps,
@@ -67,7 +68,7 @@ const initStartPattern = /Runtime Version:\s*(\S*)\s*Runtime Version ARN:/
 export function parseLambdaProps(message: string): [LambdaProps, string] {
   if (message.startsWith('START RequestId') || message.startsWith('END RequestId')) {
     // ignore Lambda START and STOP message as they don't add additional information
-    return [{ level: 'lambda' }, ''] // logs with an empty string as message are ignored
+    return [{ level: '-ignore-' }, '']
   }
 
   if (message.startsWith('REPORT RequestId')) {
